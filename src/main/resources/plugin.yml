@@ -1,0 +1,9 @@
+name: MirageRooms
+version: '${version}'
+main: me.playgamesgo.miragerooms.MirageRooms
+api-version: '1.19'
+authors: [playgamesgo]
+depend:
+  - WorldEdit
+  - WorldGuard
+  - Vault
