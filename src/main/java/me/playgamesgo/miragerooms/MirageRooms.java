@@ -5,13 +5,18 @@ import com.sk89q.worldguard.WorldGuard;
 import de.leonhard.storage.Config;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import me.playgamesgo.miragerooms.commands.RoomsCommand;
+import me.playgamesgo.miragerooms.utils.ConfigManager;
+import me.playgamesgo.miragerooms.utils.TranslationStrings;
 import net.Indyuce.mmoitems.MMOItems;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MirageRooms extends JavaPlugin {
-    public static Config configFile, dataFile;
+    public static Config configFile;
+    public static Config dataFile;
     public static Economy econ = null;
     public static WorldEdit worldEdit = null;
     public static WorldGuard worldGuard = null;
@@ -19,7 +24,7 @@ public final class MirageRooms extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(true));
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true));
     }
 
     @Override
@@ -27,8 +32,12 @@ public final class MirageRooms extends JavaPlugin {
         setupDecencies();
 
         configFile = new Config("config.yml", getDataFolder().toString());
-        dataFile = new Config("data/rooms.yml", getDataFolder().toString());
         ConfigManager.init(configFile);
+        TranslationStrings.init();
+
+        dataFile = new Config("data/rooms.yml", getDataFolder().toString());
+
+        CommandAPI.registerCommand(RoomsCommand.class);
 
         CommandAPI.onEnable();
     }
@@ -59,7 +68,7 @@ public final class MirageRooms extends JavaPlugin {
         }
         worldEdit = WorldEdit.getInstance();
 
-        if (getServer().getPluginManager().getPlugin("WorldGuard") == null) {
+        if (Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") == null) {
             getLogger().severe(String.format("[%s] - Disabled due to no WorldGuard dependency found!", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
             return;
