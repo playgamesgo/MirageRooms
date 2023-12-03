@@ -7,8 +7,7 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import me.playgamesgo.miragerooms.commands.RoomsCommand;
 import me.playgamesgo.miragerooms.utils.ConfigManager;
-import me.playgamesgo.miragerooms.utils.TranslationStrings;
-import net.Indyuce.mmoitems.MMOItems;
+import me.playgamesgo.miragerooms.utils.DatabaseManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -16,11 +15,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MirageRooms extends JavaPlugin {
     public static Config configFile;
-    public static Config dataFile;
     public static Economy econ = null;
     public static WorldEdit worldEdit = null;
     public static WorldGuard worldGuard = null;
-    public static MMOItems mmoItems = null;
+    public static DatabaseManager databaseManager = null;
 
     @Override
     public void onLoad() {
@@ -33,18 +31,18 @@ public final class MirageRooms extends JavaPlugin {
 
         configFile = new Config("config.yml", getDataFolder().toString());
         ConfigManager.init(configFile);
-        TranslationStrings.init();
-
-        dataFile = new Config("data/rooms.yml", getDataFolder().toString());
 
         CommandAPI.registerCommand(RoomsCommand.class);
 
         CommandAPI.onEnable();
+
+        databaseManager = new DatabaseManager(this);
     }
     
     @Override
     public void onDisable() {
         CommandAPI.onDisable();
+        DatabaseManager.closeConnection();
     }
 
     private void setupDecencies() {
@@ -74,12 +72,5 @@ public final class MirageRooms extends JavaPlugin {
             return;
         }
         worldGuard = WorldGuard.getInstance();
-
-        if (getServer().getPluginManager().getPlugin("MMOItems") == null) {
-            getLogger().severe(String.format("[%s] - Disabled due to no MMOItems dependency found!", getDescription().getName()));
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-        mmoItems = MMOItems.plugin;
     }
 }

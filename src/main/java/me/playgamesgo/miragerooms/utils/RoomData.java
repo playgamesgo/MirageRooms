@@ -6,12 +6,12 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public class RoomData {
-    private ProtectedRegion region;
+    private final ProtectedRegion region;
     private String name;
     private int price;
     private int maxPlayers;
     private Player owner;
-    private List<Player> players;
+    private final List<Player> players;
     private int days;
     private String dateBought, dateExpired;
 
@@ -29,9 +29,6 @@ public class RoomData {
 
     public ProtectedRegion getRegion() {
         return region;
-    }
-    public String getRegionName() {
-        return region.getType().getName();
     }
 
     public String getName() {
@@ -66,10 +63,6 @@ public class RoomData {
         return dateExpired;
     }
 
-    public void setRegion(ProtectedRegion region) {
-        this.region = region;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -84,10 +77,6 @@ public class RoomData {
 
     public void setOwner(Player owner) {
         this.owner = owner;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
     }
 
     public void setDays(int days) {
