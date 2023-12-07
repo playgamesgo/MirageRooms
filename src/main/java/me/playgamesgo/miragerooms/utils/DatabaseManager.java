@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +121,32 @@ public class DatabaseManager {
                 return false;
             }
             return true;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<RoomData> getPlayerRooms(Player player) {
+        try {
+            List<RoomData> rooms = new ArrayList<>();
+            ResultSet resultSet = connection.createStatement().executeQuery("SELECT regionId FROM rooms WHERE ownerUUID = '" + player.getUniqueId().toString() + "'");
+            while (resultSet.next()) {
+                rooms.add(getRoom(resultSet.getString(1)));
+            }
+            return rooms;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<RoomData> getAllRooms() {
+        try {
+            List<RoomData> rooms = new ArrayList<>();
+            ResultSet resultSet = connection.createStatement().executeQuery("SELECT regionId FROM rooms");
+            while (resultSet.next()) {
+                rooms.add(getRoom(resultSet.getString(1)));
+            }
+            return rooms;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

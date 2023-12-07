@@ -11,7 +11,19 @@ public class ConfigManager {
             "&8&m--------------------------------",
             "&e/rooms reload &7- &fReloads the config",
             "&e/rooms giveKey <player> <region> &7- &fGives a key to a player",
-            "&e/rooms help &7- &fShows this help message"
+            "&e/rooms help &7- &fShows this help message",
+            "&e/rooms addRoom <region> <name> <price> <maxPlayers> <days> &7- &fAdds a room",
+            "&e/rooms removeRoom <region> &7- &fRemoves a room",
+            "&e/rooms setOwner <region> <player> &7- &fSets the owner of a room",
+            "&e/rooms setPrice <region> <price> &7- &fSets the price of a room",
+            "&e/rooms setMaxPlayers <region> <maxPlayers> &7- &fSets the max players of a room",
+            "&e/rooms setDays <region> <days> &7- &fSets the days of a room",
+            "&e/rooms setName <region> <name> &7- &fSets the name of a room",
+            "&e/rooms addPlayer <region> <player> &7- &fAdds a player to a room",
+            "&e/rooms removePlayer <region> <player> &7- &fRemoves a player from a room",
+            "&e/rooms buyRoom <region> &7- &fBuys a room",
+            "&e/rooms extendRoom <region> <days> &7- &fExtends a room",
+            "&e/rooms leaveRoom &7- &fLeaves a room"
     );
 
     public static void init(Config configFile) {
@@ -40,6 +52,12 @@ public class ConfigManager {
         configFile.setDefault("playerRemoved", "&aPlayer removed!");
         configFile.setDefault("tooManyPlayers", "&cToo many players!");
         configFile.setDefault("playerAlreadyInRoom", "&cPlayer already in room!");
+        configFile.setDefault("roomAlreadyBought", "&cRoom already bought!");
+        configFile.setDefault("roomBought", "&aRoom bought!");
+        configFile.setDefault("notEnoughMoney", "&cNot enough money!");
+        configFile.setDefault("tooManyRooms", "&cToo many rooms!");
+        configFile.setDefault("roomExtended", "&aRoom extended!");
+        configFile.setDefault("roomLeft", "&aRoom left!");
 
 
         configFile.setPathPrefix(null);
@@ -51,6 +69,7 @@ public class ConfigManager {
         configFile.setDefault("mysql.password", "password");
 
         configFile.setDefault("max-players", 10);
+        configFile.setDefault("hours-to-check", 6);
         configFile.write();
     }
 }

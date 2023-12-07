@@ -6,6 +6,7 @@ import de.leonhard.storage.Config;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import me.playgamesgo.miragerooms.commands.RoomsCommand;
+import me.playgamesgo.miragerooms.tasks.DateCheck;
 import me.playgamesgo.miragerooms.utils.ConfigManager;
 import me.playgamesgo.miragerooms.utils.DatabaseManager;
 import net.milkbowl.vault.economy.Economy;
@@ -37,6 +38,10 @@ public final class MirageRooms extends JavaPlugin {
         CommandAPI.onEnable();
 
         databaseManager = new DatabaseManager(this);
+
+        DateCheck dateCheck = new DateCheck();
+
+        dateCheck.runTaskTimer(this, 0, 20L * 60 * 60 * configFile.getInt("hours-to-check"));
     }
     
     @Override

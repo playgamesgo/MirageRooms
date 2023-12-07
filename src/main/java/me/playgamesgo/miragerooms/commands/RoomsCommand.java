@@ -2,20 +2,22 @@ package me.playgamesgo.miragerooms.commands;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import dev.jorel.commandapi.annotations.*;
 import dev.jorel.commandapi.annotations.arguments.AIntegerArgument;
+import dev.jorel.commandapi.annotations.arguments.AMultiLiteralArgument;
 import dev.jorel.commandapi.annotations.arguments.APlayerArgument;
 import dev.jorel.commandapi.annotations.arguments.ATextArgument;
 import me.playgamesgo.miragerooms.MirageRooms;
+import me.playgamesgo.miragerooms.tasks.DateCheck;
 import me.playgamesgo.miragerooms.utils.DatabaseManager;
 import me.playgamesgo.miragerooms.utils.RoomData;
 import me.playgamesgo.miragerooms.utils.TranslationStrings;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -193,6 +195,100 @@ public class RoomsCommand {
         }
     }
 
+    @Subcommand("buyroom")
+    @Permission("miragerooms.command.rooms.buyRoom")
+    public static void buyRoom(Player player, @ATextArgument String regionName) {
+        RegionManager regions = MirageRooms.worldGuard.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
+        if (!regions.hasRegion(regionName)) {
+            player.sendMessage(TranslationStrings.REGION_DOESNT_EXIST);
+            return;
+        }
+        if (!DatabaseManager.roomExists(regionName)) {
+            player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
+            return;
+        }
+        RoomData roomData = DatabaseManager.getRoom(regionName);
+        if (roomData.getOwner() != null) {
+            player.sendMessage(TranslationStrings.ROOM_ALREADY_BOUGHT);
+            return;
+        }
+        if (roomData.getPrice() > MirageRooms.econ.getBalance(player)) {
+            player.sendMessage(TranslationStrings.NOT_ENOUGH_MONEY);
+            return;
+        }
+
+        int maxHomes = 0;
+        for (PermissionAttachmentInfo permissionAttachmentInfo : player.getEffectivePermissions()) {
+            if (!permissionAttachmentInfo.getPermission().startsWith("miragerooms.rooms.max.")) continue;
+            maxHomes = Integer.parseInt(permissionAttachmentInfo.getPermission().toLowerCase().replaceAll("miragerooms.rooms.max.", ""));
+        }
+
+        if (DatabaseManager.getPlayerRooms(player).size() >= maxHomes) {
+            player.sendMessage(TranslationStrings.TOO_MANY_ROOMS);
+            return;
+        }
+
+        MirageRooms.econ.withdrawPlayer(player, roomData.getPrice());
+        setOwner(player, regionName, player);
+        player.sendMessage(TranslationStrings.ROOM_BOUGHT);
+    }
+
+    @Subcommand("extendbuy")
+    @Permission("miragerooms.command.rooms.extendBuy")
+    public static void extendBuy(Player player, @ATextArgument String regionName) {
+        RegionManager regions = MirageRooms.worldGuard.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
+        if (!regions.hasRegion(regionName)) {
+            player.sendMessage(TranslationStrings.REGION_DOESNT_EXIST);
+            return;
+        }
+        if (!DatabaseManager.roomExists(regionName)) {
+            player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
+            return;
+        }
+        RoomData roomData = DatabaseManager.getRoom(regionName);
+        if (roomData.getPrice() > MirageRooms.econ.getBalance(player)) {
+            player.sendMessage(TranslationStrings.NOT_ENOUGH_MONEY);
+            return;
+        }
+
+        MirageRooms.econ.withdrawPlayer(player, roomData.getPrice());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Calendar c = Calendar.getInstance();
+        try {
+            c.setTime(Date.from(sdf.parse(roomData.getDateExpired()).toInstant()));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        c.add(Calendar.DATE, roomData.getDays());
+        roomData.setDateExpired(sdf.format(c.getTime()));
+        DatabaseManager.updateRoom(roomData);
+        player.sendMessage(TranslationStrings.ROOM_EXTENDED);
+    }
+
+    @Subcommand("leaveroom")
+    @Permission("miragerooms.command.rooms.leaveRoom")
+    public static void leaveRoom(Player player, @ATextArgument String regionName) {
+        RegionManager regions = MirageRooms.worldGuard.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
+        if (!regions.hasRegion(regionName)) {
+            player.sendMessage(TranslationStrings.REGION_DOESNT_EXIST);
+            return;
+        }
+        if (!DatabaseManager.roomExists(regionName)) {
+            player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
+            return;
+        }
+        if (DatabaseManager.getRoom(regionName).getOwner() == player) {
+            removeOwner(player, regionName);
+            DatabaseManager.getRoom(regionName).getPlayers().clear();
+            DatabaseManager.updateRoom(DatabaseManager.getRoom(regionName));
+            player.sendMessage(TranslationStrings.ROOM_LEFT);
+        }
+        if (DatabaseManager.getRoom(regionName).getPlayers().contains(player)) {
+            removePlayer(player, regionName, player);
+            player.sendMessage(TranslationStrings.ROOM_LEFT);
+        }
+    }
+
     @Subcommand("removeplayer")
     @Permission("miragerooms.command.rooms.removePlayer")
     public static void removePlayer(Player player, @ATextArgument String regionName, @APlayerArgument Player newPlayer) {
@@ -204,6 +300,32 @@ public class RoomsCommand {
             player.sendMessage(TranslationStrings.PLAYER_REMOVED);
         } else {
             player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
+        }
+    }
+
+    //TODO: Remove this debug command
+    @Subcommand("debug")
+    @Permission("miragerooms.command.rooms.debug")
+    public static void debug(Player player, @AMultiLiteralArgument({"setday1", "setday2", "run"}) String command) {
+        if (command.equals("setday1")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            RoomData roomData = DatabaseManager.getRoom("test");
+            roomData.setDateExpired(sdf.format(c.getTime()));
+            DatabaseManager.updateRoom(roomData);
+        }
+        if (command.equals("setday2")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            c.add(Calendar.DATE, -2);
+            RoomData roomData = DatabaseManager.getRoom("test");
+            roomData.setDateExpired(sdf.format(c.getTime()));
+            DatabaseManager.updateRoom(roomData);
+        }
+        if (command.equals("run")) {
+            new DateCheck().runTask(MirageRooms.getPlugin(MirageRooms.class));
         }
     }
 }
