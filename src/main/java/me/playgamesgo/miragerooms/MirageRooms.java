@@ -6,6 +6,7 @@ import de.leonhard.storage.Config;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import me.playgamesgo.miragerooms.commands.RoomsCommand;
+import me.playgamesgo.miragerooms.placeholders.RoomsExpansion;
 import me.playgamesgo.miragerooms.tasks.DateCheck;
 import me.playgamesgo.miragerooms.utils.ConfigManager;
 import me.playgamesgo.miragerooms.utils.DatabaseManager;
@@ -77,5 +78,12 @@ public final class MirageRooms extends JavaPlugin {
             return;
         }
         worldGuard = WorldGuard.getInstance();
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            getLogger().severe(String.format("[%s] - Disabled due to no PlaceholderAPI dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        new RoomsExpansion(this).register();
     }
 }
