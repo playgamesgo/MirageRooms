@@ -10,7 +10,6 @@ public class ConfigManager {
             "&8&m----------&r &6MirageRooms &8&m----------",
             "&8&m--------------------------------",
             "&e/rooms reload &7- &fReloads the config",
-            "&e/rooms giveKey <player> <region> &7- &fGives a key to a player",
             "&e/rooms help &7- &fShows this help message",
             "&e/rooms addRoom <region> <name> <price> <maxPlayers> <days> &7- &fAdds a room",
             "&e/rooms removeRoom <region> &7- &fRemoves a room",
@@ -22,7 +21,7 @@ public class ConfigManager {
             "&e/rooms addPlayer <region> <player> &7- &fAdds a player to a room",
             "&e/rooms removePlayer <region> <player> &7- &fRemoves a player from a room",
             "&e/rooms buyRoom <region> &7- &fBuys a room",
-            "&e/rooms extendRoom <region> <days> &7- &fExtends a room",
+            "&e/rooms extendRoom <region> &7- &fExtends a room",
             "&e/rooms leaveRoom &7- &fLeaves a room"
     );
 
