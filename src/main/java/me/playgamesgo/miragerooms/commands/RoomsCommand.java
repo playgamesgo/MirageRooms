@@ -110,6 +110,7 @@ public class RoomsCommand {
             roomData.setOwner(null);
             roomData.setDateBought(null);
             roomData.setDateExpired(null);
+            roomData.getPlayers().clear();
             DatabaseManager.updateRoom(roomData);
             player.sendMessage(TranslationStrings.OWNER_SET);
         } else {
@@ -306,7 +307,7 @@ public class RoomsCommand {
     //TODO: Remove this debug command
     @Subcommand("debug")
     @Permission("miragerooms.command.rooms.debug")
-    public static void debug(Player player, @AMultiLiteralArgument({"setday1", "setday2", "run"}) String command) {
+    public static void debug(Player player, @AMultiLiteralArgument({"setday1", "setday2", "run", "addplayer"}) String command) {
         if (command.equals("setday1")) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             Calendar c = Calendar.getInstance();
@@ -326,6 +327,11 @@ public class RoomsCommand {
         }
         if (command.equals("run")) {
             new DateCheck().runTask(MirageRooms.getPlugin(MirageRooms.class));
+        }
+        if (command.equals("addplayer")) {
+            RoomData roomData = DatabaseManager.getRoom("test");
+            roomData.getPlayers().add(player);
+            DatabaseManager.updateRoom(roomData);
         }
     }
 }

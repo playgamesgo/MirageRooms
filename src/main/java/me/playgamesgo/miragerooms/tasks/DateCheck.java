@@ -4,7 +4,6 @@ import me.playgamesgo.miragerooms.commands.RoomsCommand;
 import me.playgamesgo.miragerooms.utils.DatabaseManager;
 import me.playgamesgo.miragerooms.utils.RoomData;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.ParseException;
@@ -27,7 +26,6 @@ public class DateCheck extends BukkitRunnable {
                     throw new RuntimeException(e);
                 }
                 c.add(Calendar.DATE, 2);
-                System.out.println(sdf.format(c.getTime()));
                 if (c.getTime().before(new Date())) {
                     RoomsCommand.removeOwner(Bukkit.getPlayer("playgamesgo").getPlayer(), room.getRegion().getId());
                 }
