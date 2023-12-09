@@ -80,5 +80,5 @@ processResources {
 shadowJar {
     relocate 'de.leonhard.storage', 'me.playgamesgo.libs.simplixstorage'
     relocate 'dev.jorel.commandapi', 'me.playgamesgo.libs.commandapi'
-    relocate("de.tr7zw.changeme.nbtapi", "me.playgamesgo.libs.nbtapi")
+    relocate 'de.tr7zw.changeme.nbtapi', 'me.playgamesgo.libs.nbtapi'
 }
