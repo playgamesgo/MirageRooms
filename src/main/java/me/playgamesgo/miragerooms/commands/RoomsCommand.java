@@ -95,6 +95,7 @@ public class RoomsCommand {
             c.add(Calendar.DATE, roomData.getDays());
             roomData.setDateExpired(sdf.format(c.getTime()));
             DatabaseManager.updateRoom(roomData);
+            regions.getRegion(regionName).getMembers().addPlayer(newOwner.getUniqueId());
             player.sendMessage(TranslationStrings.OWNER_SET);
         } else {
             player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
@@ -112,6 +113,7 @@ public class RoomsCommand {
             roomData.setDateExpired(null);
             roomData.getPlayers().clear();
             DatabaseManager.updateRoom(roomData);
+            regions.getRegion(regionName).getMembers().removeAll();
             player.sendMessage(TranslationStrings.OWNER_SET);
         } else {
             player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
@@ -190,6 +192,7 @@ public class RoomsCommand {
             }
             roomData.getPlayers().add(newPlayer);
             DatabaseManager.updateRoom(roomData);
+            regions.getRegion(regionName).getMembers().addPlayer(newPlayer.getUniqueId());
             player.sendMessage(TranslationStrings.PLAYER_ADDED);
         } else {
             player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
@@ -298,6 +301,7 @@ public class RoomsCommand {
             RoomData roomData = DatabaseManager.getRoom(regionName);
             roomData.getPlayers().remove(newPlayer);
             DatabaseManager.updateRoom(roomData);
+            regions.getRegion(regionName).getMembers().removePlayer(newPlayer.getUniqueId());
             player.sendMessage(TranslationStrings.PLAYER_REMOVED);
         } else {
             player.sendMessage(TranslationStrings.ROOM_DOESNT_EXIST);
